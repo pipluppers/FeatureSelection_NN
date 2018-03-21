@@ -1,0 +1,192 @@
+import pandas as pd
+import random
+import numpy as np
+import math
+
+def main():
+    print('Welcome to Alex Nguyen\'s Feature Selection Algorithm.')
+    fileName = input('Type in the name of the file to test: ')
+    print('FileName: %s' % fileName)
+    fileName = 'CS205_SMALLtestdata__19.txt'
+
+    # \s is space. \s+ is at least one space
+    df = pd.read_csv(fileName, sep='\s+', names=['Class Label', '1', '2', '3', '4',
+                                                 '5', '6', '7', '8', '9', '10'])
+    print('\nType in the name of the algorithm you want to run.')
+    print('')
+    print('\t1) Forward Selection\n\t2) Backwards Elimination\n\t3) Alex\'s Special Algorithm')
+    print('')
+    print('\t\t\t1')
+    print('')
+    print('This dataset has %d features (not including the class attribute), with %d instances' % (10, 100))
+    print('Please wait while I normalize the data...')
+    #   Min-Max Normalization
+    new_df = (df - df.min()) / (df.max() - df.min())
+    new_df['Class Label'] = df['Class Label']   # Don't change the class labels
+    #print("New and improved df: \n")
+    #print(new_df)
+    print('Done!')
+
+    #   Displays first five rows with all columns
+    print(new_df.head())
+
+    num_rows = new_df.shape[0]
+    print("Number of rows: %d" % num_rows)
+    num_cols = new_df.shape[1]
+    print('Number of columns: %d' % num_cols)
+
+    curr_set = []
+    feature_search(new_df)
+
+#print('\n', end='')
+#print(df.columns)
+'''
+    Nearest Neighbor Algorithm
+        Inputs:     - One row for the test set
+                    - Many rows for the training set
+                    - A list that holds the names of the columns (e.g. 'Class Label')
+                    - A bitmap that helps calculate Euclidean Distance easier
+                    - The row of the test data. Don't check this in the training data
+        Process:    Do Euclidean Distance between all data points. Use a loop
+                    to find the smallest distance. 
+        Output:     The Class Label
+'''
+def nearest_neighbor(test, train, feature, bitmap, test_row):
+    bsf_dist = np.inf       #   Best-so-far Distance
+    classs = 0              #   The label's class
+
+    #   Loop through the training list
+    for i in range (0, train.shape[0]+1):
+        dist = 0
+        #   This is good. Don't second-guess yourself
+        #   It's job is to nullify all features that are not used and calculate all
+        #       features that are used between a test point and one training point
+        if i != test_row:
+            for j in range(0, 10):
+                dist = dist + bitmap[0][j] * ((float(test[feature[j+1]]) -
+                    float(train.loc[i:i][feature[j+1]]))**2)
+            dist = np.sqrt(dist)
+            #print(dist)
+            if (dist < bsf_dist):
+                bsf_dist = dist
+                #neighbor = train.loc[i:i]
+                classs = train.loc[i:i][feature[0]]
+    #print('Smallest distance: ', bsf_dist)
+    #print('Predicted Class: ', classs.item())
+    return classs.item()
+
+
+'''
+    Leave-One-Out Cross Validation
+        Inputs:     - Dataset, current set of features, feature to consider adding
+        Process:    - Create a bitmap and update it with 1's on the features being considered
+                    - Call Nearest Neighbor to find out the label of the test data point
+        Output:     Returns the ACCURACY
+'''
+def leave_one_out_cross_validation(dataset, current_set, feature_to_add):
+    #   Bitmap with 10 columns. Used to calculate Euclidean Distance
+    bitmap = np.zeros((1, dataset.shape[1] - 1), dtype = float)
+    print(bitmap)
+    features = dataset.columns
+    num_correct = 0                 #   Used for evaluation
+    print(len(current_set))
+    for a in range(0, len(current_set)):
+        bitmap[0][int(current_set[a]) - 1] = 1      # Make all current features 1's
+    bitmap[0][int(feature_to_add) - 1] = 1          # Make the considered feature a 1
+    print(bitmap)
+
+    #   Later, change it to
+    #       for i in range(0,100):
+    for i in range(0, 100):
+        #   Leave one out split
+        test_set = dataset.loc[i:i]
+        #print('Test Set: \n', test_set)
+        df1 = dataset.loc[0:(i-1)]
+        df2 = dataset.loc[i+1:100]        # Should be dataset.loc[i+1, 100]
+        training_set = pd.concat([df1,df2])
+        #print(test_set)
+        #print(training_set)
+        #print("Printing training set\n")
+        #print(training_set)
+        #print(training_set.loc[j:j])
+        if nearest_neighbor(test_set, training_set, features, bitmap, i)\
+                == test_set[features[0]].item():
+            num_correct += 1
+            #print("YES\n")
+    print("NUMBER CORRECT: ", num_correct)
+    print('Accuracy of Feature: ', num_correct / 100)
+
+    return (num_correct / 100)
+
+#curr = []
+#leave_one_out_cross_validation(df, curr, '1')
+
+'''
+    Feature Search
+        Start with no initial features
+        Loop through the levels of the tree (size is number of features)
+        Make a bsf accuracy
+        Find the accuracy of a feature using the leave-one-out cross validation method
+        It it's better than our bsf, update it
+        Add the best feature to our current set of features
+'''
+def feature_search(data):
+
+    #   Dictionaries are easier to search for membership
+    current_features = {}
+    current_features_list = []
+
+    absolute_bsf = 0        # If something falls below this, stop
+    best_so_far_accuracy = 0
+    #   Iterating through the rows
+    for i in range(0, 10):
+        print('On level %d of search tree' % (i+1))
+        best_so_far_accuracy = 0
+
+        #   Iterating through the columns
+        for j in range(0, data.shape[1] - 1):
+            if not (j+1) in current_features:       #   Using the dictionary
+                print('Considering feature %d\n' % (j+1))
+                accuracy = leave_one_out_cross_validation(data, current_features_list, j + 1)
+                print('\tUsing feature(s) {%d' % (j+1), end='')
+                for bb in range(0, len(current_features_list)):
+                    print(', %d' % current_features_list[bb], end='')
+                print('}, accuracy is %f %%' % (accuracy))
+                if accuracy > best_so_far_accuracy:
+                    best_so_far_accuracy = accuracy
+                    feature_to_add = j + 1
+        current_features[feature_to_add] = ''
+        current_features_list.append(feature_to_add)
+        print('Added feature %d to the current set' % feature_to_add)
+        print('Feature set {', end='')
+        for bc in range(0, len(current_features_list)):
+            print('%d' % current_features_list[bc], end = '')
+            if (bc != len(current_features_list) - 1):
+                print(', ', end='')
+        print('} was best. Accuracy was %f %%' % best_so_far_accuracy)
+        if i == 0:
+            absolute_bsf = best_so_far_accuracy
+        elif best_so_far_accuracy >= absolute_bsf:
+            absolute_bsf = best_so_far_accuracy
+        else:
+            if (best_so_far_accuracy < absolute_bsf):       # Can most likely take this out
+                break
+    print("Accuracy decreased from %f%% to %f%%" % (absolute_bsf,best_so_far_accuracy))
+    print('\n', current_features, '\n')
+    return current_features_list
+
+print('Calling Feature Search\n')
+#feature_search(df)
+
+def backwards_elimination(data):
+    current_features = {}
+    current_features_list = []
+    for i in range(0, data.shape[1] - 1):
+        current_features_list.append(i+1)
+        current_features[i + 1] = ''
+    print(current_features_list)
+
+#backwards_elimination(df)
+
+if __name__ == "__main__":
+    main()
