@@ -6,8 +6,9 @@ import math
 def main():
     print('Welcome to Alex Nguyen\'s Feature Selection Algorithm.')
     fileName = input('Type in the name of the file to test: ')
-    fileName = 'CS205_BIGtestdata__2.txt'
-    print(fileName[6:9])        # Sanity check
+    #fileName = 'CS205_BIGtestdata__2.txt'
+    fileName = 'CS205_SMALLtestdata__19.txt'
+    #print(fileName[6:9])        # Sanity check
     if fileName[6:9] == 'BIG':
         df = pd.read_csv(fileName, sep='\s+', names=['Class Label', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
             '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28',
@@ -16,14 +17,6 @@ def main():
     else:
         # \s is space. \s+ is at least one space. Small dataset has 10 features
         df = pd.read_csv(fileName, sep='\s+', names=['Class Label', '1', '2', '3', '4','5', '6', '7', '8', '9', '10'])
-
-    #df = pd.read_csv(fileName, sep='\s+', names=['Class Label', '1', '2', '3', '4',
-    #                                             '5', '6', '7', '8', '9', '10'])
-    #   BIG DATASET has 50 features
-    df = pd.read_csv(fileName, sep='\s+', names=['Class Label', '1', '2', '3', '4','5', '6', '7', '8', '9', '10',
-        '11', '12', '13', '14','15', '16', '17', '18', '19', '20', '21', '22', '23', '24','25', '26', '27', '28', '29',
-        '30', '31', '32', '33', '34','35', '36', '37', '38', '39', '40', '41', '42', '43', '44','45', '46', '47', '48',
-                                                 '49', '50',])
     print('\nType in the name of the algorithm you want to run.\n')
     print('\t1) Forward Selection\n\t2) Backwards Elimination\n\t3) Alex\'s Special Algorithm\n')
     algo_choice = input('\t\t\t')
@@ -33,11 +26,11 @@ def main():
     new_df = (df - df.min()) / (df.max() - df.min())
     new_df['Class Label'] = df['Class Label']   # Don't change the class labels
     print('\tDone!')
-    if algo_choice == 1:
+    if algo_choice == '1':
         feature_search(new_df,1)
-    elif algo_choice == 2:
+    elif algo_choice == '2':
         backwards_elimination(new_df)
-    elif algo_choice == 3:
+    elif algo_choice == '3':
         feature_search(new_df,3)
 
 '''
