@@ -7,7 +7,7 @@ Input Files:
 
 2. Small dataset with a class label and 10 features (numerical values)
 
-3. Python program file
+3. Python3 program file
 
 Real world data contains multitudes of irrelevant entires and features. A modern problem is to derive the useful features that constitute a label given a dataset and ignore the rest. An example of labels could be edible food versus non-edible foods and the relevant features could include chemicals and origin while non-relevant features may include temperature. Both of these two above sample input datasets contain multiple irrelevant features. The goal of this project is to filter these features out and determine which fields are actually significant in determining the correct label.
 
