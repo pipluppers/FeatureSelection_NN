@@ -23,9 +23,10 @@ Forward selection is an algorithm that starts with an empty initial set. Feature
 
 - Then consider the next feature and repeat. If this feature yields a higher accuracy than the previous ones, ignore them for now. Repeat for remaining features.
 
-- Once all features are considered, add the one with the highest accuracy to a list. This is the list of relevant features. Next pick another feature that is not in this new list. Repeat all the above steps with now considering this new one with the known relevant features.
+- Once all features are considered, add the one with the highest accuracy to a list. This is the list of relevant features. Next pick another feature that is not in this new list. Repeat all the above steps with now considering this new one along with the known relevant features.
 
-- Repeat until adding a new feature to our list decreases the overall frequency. This list is the output list of relevant features.
+- Repeat until adding a new feature to the list decreases the overall frequency. This final list is the output list of relevant features.
 
-Three algorithms will be explored here. The first is forward selection, which adds features one-by-one and picks one based on its accuracy (here we use the nearest neighbor (or 1-nearest neighbor) method to measure the accuracy.
-Cross validation, specifically leave-one-out, is used to train our model. The leave-one-out method selects one data instance as the test set and the rest as the training set. This results in good accuracy because the training set is still roughly the size of the original set. However, this method is prone to long runtimes, especially when the dataset becomes large.
+Backwards elimination follows the exact same concept except for instead of starting with an empty list of relevant features and adding to it, this method starts with the full list of features and subtracts from it. 
+
+The pruning method is alpha-beta pruning. This improves the search runtime of forward selection by ending searches early if there is no way for the feature to be relevant. As each feature is searched using the nearest neighbor classifier, a tracking variable is used to count the number of incorrect labels. If the feature ever yielded one more wrong label than this variable, we can stop running cross validation and nearest neighbor with this feature because it is guaranteed to be worse than a previous one. This removes redundant calls to the classifier.
