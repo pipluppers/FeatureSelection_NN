@@ -25,7 +25,7 @@ Forward selection is an algorithm that starts with an empty initial set. Feature
 
 - Once all features are considered, add the one with the highest accuracy to a list. This is the list of relevant features. Next pick another feature that is not in this new list. Repeat all the above steps with now considering this new one along with the known relevant features.
 
-- Repeat until adding a new feature to the list decreases the overall frequency. This final list is the output list of relevant features.
+- Repeat until adding a new feature to the list decreases the overall accuracy. This final list is the output list of relevant features.
 
 Backwards elimination follows the exact same concept except for instead of starting with an empty list of relevant features and adding to it, this method starts with the full list of features and subtracts from it. 
 
